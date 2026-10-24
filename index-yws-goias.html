@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quantos painéis? · YWS Solar</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;800&family=Figtree:wght@400;600&display=swap">
+<style>
+:root{--bg:#f5f4ee;--card:#fff;--ink:#102a2e;--mut:#5d6f70;--line:#dfe3dc;--sun:#f2b632;--sunink:#3a2a00;--ok:#1f7a4d;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1d20;--card:#14292d;--ink:#eef3ef;--mut:#9db1b1;--line:#24403f;--ok:#5fd29a}}
+:root[data-theme="dark"]{--bg:#0d1d20;--card:#14292d;--ink:#eef3ef;--mut:#9db1b1;--line:#24403f;--ok:#5fd29a}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.45 Figtree,system-ui,sans-serif;-webkit-text-size-adjust:100%}
+main{max-width:480px;margin:0 auto;padding:20px 18px 40px}
+h1{font:800 26px/1.1 "Bricolage Grotesque",Figtree,sans-serif;margin:6px 0 4px}
+p.sub{margin:0 0 18px;color:var(--mut)}
+label{display:block;font-weight:600;font-size:14px;margin:0 0 6px}
+.field{margin-bottom:14px}
+input,select{width:100%;font:inherit;font-size:18px;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink)}
+input:focus,select:focus{outline:3px solid var(--sun);outline-offset:1px}
+.bill input{font:800 34px "Bricolage Grotesque",Figtree,sans-serif;padding:14px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+details{margin:6px 0 18px;border:1.5px solid var(--line);border-radius:12px;background:var(--card);padding:0 14px}
+summary{padding:13px 0;font-weight:600;cursor:pointer}
+details .field{margin-top:4px}
+.hint{font-size:13px;color:var(--mut);margin:-8px 0 14px}
+.hero{background:var(--sun);color:var(--sunink);border-radius:20px;padding:22px 20px;margin:4px 0 14px}
+.hero b{display:block;font:800 88px/0.95 "Bricolage Grotesque",Figtree,sans-serif;letter-spacing:-2px}
+.hero span{font-weight:600;font-size:17px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cell{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:14px}
+.cell small{display:block;color:var(--mut);font-size:13px}
+.cell strong{font:800 24px/1.15 "Bricolage Grotesque",Figtree,sans-serif}
+.cell.wide{grid-column:1/-1}
+.save strong{color:var(--ok)}
+.note{font-size:13px;color:var(--mut);margin-top:16px}
+.warn{display:none;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:12px}
+.sunbox{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:16px;margin-top:18px}
+.sunbox h2{font:800 20px/1.15 "Bricolage Grotesque",Figtree,sans-serif;margin:0 0 4px}
+.sunbox h3{font:600 15px/1.2 Figtree,sans-serif;margin:18px 0 8px}
+.sunbox svg{width:100%;height:auto;display:block;overflow:visible}
+.sunbox svg text{fill:var(--mut);font:11px Figtree,sans-serif}
+.sunbox svg .g{stroke:var(--line);stroke-width:1}
+.leg{display:grid;gap:6px;margin-top:8px;font-size:14px}
+.leg div{display:flex;align-items:center;gap:8px}
+.leg i{width:14px;height:4px;border-radius:2px;flex:none}
+.leg span{color:var(--mut);margin-left:auto;text-align:right}
+.bars{display:flex;align-items:flex-end;gap:4px;height:90px}
+.bars i{flex:1;background:var(--sun);border-radius:4px 4px 0 0;min-height:2px}
+.mo{display:flex;gap:4px;font-size:11px;color:var(--mut)}
+.mo span{flex:1;text-align:center}
+body{min-height:100dvh;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+input,select,summary{touch-action:manipulation}
+main{overflow-wrap:anywhere}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;display:none;justify-content:space-between;gap:8px;background:var(--sun);color:var(--sunink);border-radius:12px;padding:10px 14px;margin:0 0 12px;font-weight:600;font-size:15px}
+.bar.on{display:flex}
+.tilt{background:var(--bg);border-radius:12px;padding:12px 14px;margin-top:12px;font-size:14px}
+</style>
+</head>
+<body>
+<main>
+<h1>Quantos painéis o cliente precisa?</h1>
+<p class="sub">Digite quanto ele paga de luz por mês.</p>
+<div class="bar" id="bar" aria-hidden="true"><span id="b1"></span><span id="b2"></span><span id="b3"></span></div>
+
+<div class="field bill">
+<label for="bill">Valor da conta de luz (R$ por mês)</label>
+<input id="bill" type="number" inputmode="decimal" min="0" step="10" value="500" autocomplete="off">
+</div>
+
+<div class="field">
+<label for="lig">Tipo de ligação</label>
+<select id="lig">
+<option value="30">Monofásica (taxa mínima 30 kWh)</option>
+<option value="50">Bifásica (taxa mínima 50 kWh)</option>
+<option value="100">Trifásica (taxa mínima 100 kWh)</option>
+</select>
+</div>
+
+<div class="field">
+<label for="cid">Cidade do cliente (Goiás)</label>
+<select id="cid">
+<option value="16.76">Abadia de Goiás</option>
+<option value="16.20">Abadiânia</option>
+<option value="17.40">Acreúna</option>
+<option value="16.03">Adelândia</option>
+<option value="14.98">Água Fria de Goiás</option>
+<option value="18.07">Água Limpa</option>
+<option value="15.76">Águas Lindas de Goiás</option>
+<option value="16.08">Alexânia</option>
+<option value="17.73">Aloândia</option>
+<option value="14.20">Alto Horizonte</option>
+<option value="14.13">Alto Paraíso de Goiás</option>
+<option value="14.47">Alvorada do Norte</option>
+<option value="13.92">Amaralina</option>
+<option value="16.25">Americano do Brasil</option>
+<option value="16.62">Amorinópolis</option>
+<option value="16.33">Anápolis</option>
+<option value="18.33">Anhanguera</option>
+<option value="16.46">Anicuns</option>
+<option value="16.82">Aparecida de Goiânia</option>
+<option value="18.30">Aparecida do Rio Doce</option>
+<option value="18.96">Aporé</option>
+<option value="16.36">Araçu</option>
+<option value="15.90">Aragarças</option>
+<option value="16.91">Aragoiânia</option>
+<option value="15.09">Araguapaz</option>
+<option value="16.39">Arenópolis</option>
+<option value="14.92">Aruanã</option>
+<option value="16.69">Aurilândia</option>
+<option value="16.28">Avelinópolis</option>
+<option value="16.20">Baliza</option>
+<option value="14.97">Barro Alto</option>
+<option value="16.97">Bela Vista de Goiás</option>
+<option value="16.21">Bom Jardim de Goiás</option>
+<option value="18.22">Bom Jesus de Goiás</option>
+<option value="16.62">Bonfinópolis</option>
+<option value="13.62">Bonópolis</option>
+<option value="16.43">Brazabrantes</option>
+<option value="15.24">Britânia</option>
+<option value="18.14">Buriti Alegre</option>
+<option value="16.18">Buriti de Goiás</option>
+<option value="14.47">Buritinópolis</option>
+<option value="15.80">Cabeceiras</option>
+<option value="18.77">Cachoeira Alta</option>
+<option value="16.65">Cachoeira de Goiás</option>
+<option value="18.49">Cachoeira Dourada</option>
+<option value="18.56">Caçu</option>
+<option value="16.96">Caiapônia</option>
+<option value="17.74">Caldas Novas</option>
+<option value="16.71">Caldazinha</option>
+<option value="16.76">Campestre de Goiás</option>
+<option value="13.79">Campinaçu</option>
+<option value="14.32">Campinorte</option>
+<option value="17.64">Campo Alegre de Goiás</option>
+<option value="16.31">Campo Limpo de Goiás</option>
+<option value="13.04">Campos Belos</option>
+<option value="14.24">Campos Verdes</option>
+<option value="15.35">Carmo do Rio Verde</option>
+<option value="18.02">Castelândia</option>
+<option value="18.17">Catalão</option>
+<option value="16.43">Caturaí</option>
+<option value="13.80">Cavalcante</option>
+<option value="15.31">Ceres</option>
+<option value="16.97">Cezarina</option>
+<option value="18.39">Chapadão do Céu</option>
+<option value="16.08">Cidade Ocidental</option>
+<option value="15.80">Cocalzinho de Goiás</option>
+<option value="14.15">Colinas do Sul</option>
+<option value="16.30">Córrego do Ouro</option>
+<option value="15.92">Corumbá de Goiás</option>
+<option value="18.14">Corumbaíba</option>
+<option value="16.77">Cristalina</option>
+<option value="17.20">Cristianópolis</option>
+<option value="14.54">Crixás</option>
+<option value="17.29">Cromínia</option>
+<option value="18.26">Cumari</option>
+<option value="14.56">Damianópolis</option>
+<option value="16.25">Damolândia</option>
+<option value="18.15">Davinópolis</option>
+<option value="16.23">Diorama</option>
+<option value="13.28">Divinópolis de Goiás</option>
+<option value="16.71">Doverlândia</option>
+<option value="17.34">Edealina</option>
+<option value="17.34">Edéia</option>
+<option value="13.87">Estrela do Norte</option>
+<option value="15.45">Faina</option>
+<option value="16.23">Fazenda Nova</option>
+<option value="16.58">Firminópolis</option>
+<option value="14.45">Flores de Goiás</option>
+<option value="15.54">Formosa</option>
+<option value="13.65">Formoso</option>
+<option value="16.49">Gameleira de Goiás</option>
+<option value="16.51">Goianápolis</option>
+<option value="18.14">Goiandira</option>
+<option value="15.31">Goianésia</option>
+<option value="16.68" selected>Goiânia</option>
+<option value="16.50">Goianira</option>
+<option value="15.93">Goiás</option>
+<option value="18.01">Goiatuba</option>
+<option value="18.17">Gouvelândia</option>
+<option value="16.83">Guapó</option>
+<option value="15.33">Guaraíta</option>
+<option value="13.94">Guarani de Goiás</option>
+<option value="14.72">Guarinos</option>
+<option value="15.72">Heitoraí</option>
+<option value="16.96">Hidrolândia</option>
+<option value="14.73">Hidrolina</option>
+<option value="14.10">Iaciara</option>
+<option value="18.45">Inaciolândia</option>
+<option value="17.12">Indiara</option>
+<option value="16.36">Inhumas</option>
+<option value="17.72">Ipameri</option>
+<option value="15.15">Ipiranga de Goiás</option>
+<option value="16.44">Iporá</option>
+<option value="16.32">Israelândia</option>
+<option value="16.02">Itaberaí</option>
+<option value="15.97">Itaguari</option>
+<option value="15.74">Itaguaru</option>
+<option value="19.06">Itajá</option>
+<option value="14.95">Itapaci</option>
+<option value="15.82">Itapirapuã</option>
+<option value="15.56">Itapuranga</option>
+<option value="18.77">Itarumã</option>
+<option value="16.20">Itauçu</option>
+<option value="18.41">Itumbiara</option>
+<option value="16.60">Ivolândia</option>
+<option value="17.05">Jandaia</option>
+<option value="15.75">Jaraguá</option>
+<option value="17.88">Jataí</option>
+<option value="16.14">Jaupaci</option>
+<option value="15.95">Jesúpolis</option>
+<option value="17.81">Joviânia</option>
+<option value="15.87">Jussara</option>
+<option value="19.17">Lagoa Santa</option>
+<option value="16.62">Leopoldo de Bulhões</option>
+<option value="16.25">Luziânia</option>
+<option value="17.30">Mairipotaba</option>
+<option value="14.48">Mambaí</option>
+<option value="14.02">Mara Rosa</option>
+<option value="17.98">Marzagão</option>
+<option value="15.50">Matrinchã</option>
+<option value="17.97">Maurilândia</option>
+<option value="15.05">Mimoso de Goiás</option>
+<option value="13.53">Minaçu</option>
+<option value="17.57">Mineiros</option>
+<option value="16.54">Moiporá</option>
+<option value="13.25">Monte Alegre de Goiás</option>
+<option value="16.01">Montes Claros de Goiás</option>
+<option value="17.44">Montividiu</option>
+<option value="13.35">Montividiu do Norte</option>
+<option value="17.73">Morrinhos</option>
+<option value="15.31">Morro Agudo de Goiás</option>
+<option value="16.12">Mossâmedes</option>
+<option value="14.74">Mozarlândia</option>
+<option value="13.77">Mundo Novo</option>
+<option value="13.73">Mutunópolis</option>
+<option value="16.58">Nazário</option>
+<option value="16.40">Nerópolis</option>
+<option value="14.47">Niquelândia</option>
+<option value="15.00">Nova América</option>
+<option value="18.07">Nova Aurora</option>
+<option value="14.10">Nova Crixás</option>
+<option value="15.15">Nova Glória</option>
+<option value="14.30">Nova Iguaçu de Goiás</option>
+<option value="13.74">Nova Roma</option>
+<option value="16.36">Nova Veneza</option>
+<option value="16.03">Novo Brasil</option>
+<option value="16.06">Novo Gama</option>
+<option value="13.24">Novo Planalto</option>
+<option value="17.03">Orizona</option>
+<option value="16.22">Ouro Verde de Goiás</option>
+<option value="18.35">Ouvidor</option>
+<option value="15.16">Padre Bernardo</option>
+<option value="16.74">Palestina de Goiás</option>
+<option value="16.80">Palmeiras de Goiás</option>
+<option value="17.32">Palmelo</option>
+<option value="16.79">Palminópolis</option>
+<option value="18.18">Panamá</option>
+<option value="18.91">Paranaiguara</option>
+<option value="16.95">Paraúna</option>
+<option value="17.52">Perolândia</option>
+<option value="16.09">Petrolina de Goiás</option>
+<option value="14.76">Pilar de Goiás</option>
+<option value="17.30">Piracanjuba</option>
+<option value="16.43">Piranhas</option>
+<option value="15.85">Pirenópolis</option>
+<option value="17.30">Pires do Rio</option>
+<option value="15.45">Planaltina</option>
+<option value="17.52">Pontalina</option>
+<option value="13.44">Porangatu</option>
+<option value="17.81">Porteirão</option>
+<option value="17.35">Portelândia</option>
+<option value="14.09">Posse</option>
+<option value="17.25">Professor Jamil</option>
+<option value="18.45">Quirinópolis</option>
+<option value="15.30">Rialma</option>
+<option value="15.43">Rianápolis</option>
+<option value="17.77">Rio Quente</option>
+<option value="17.80">Rio Verde</option>
+<option value="15.16">Rubiataba</option>
+<option value="16.18">Sanclerlândia</option>
+<option value="16.60">Santa Bárbara de Goiás</option>
+<option value="17.25">Santa Cruz de Goiás</option>
+<option value="15.76">Santa Fé de Goiás</option>
+<option value="17.81">Santa Helena de Goiás</option>
+<option value="15.30">Santa Isabel</option>
+<option value="17.32">Santa Rita do Araguaia</option>
+<option value="15.15">Santa Rita do Novo Destino</option>
+<option value="16.43">Santa Rosa de Goiás</option>
+<option value="14.43">Santa Tereza de Goiás</option>
+<option value="14.43">Santa Terezinha de Goiás</option>
+<option value="17.55">Santo Antônio da Barra</option>
+<option value="16.49">Santo Antônio de Goiás</option>
+<option value="15.94">Santo Antônio do Descoberto</option>
+<option value="13.40">São Domingos</option>
+<option value="15.92">São Francisco de Goiás</option>
+<option value="14.71">São João d&#39;Aliança</option>
+<option value="16.81">São João da Paraúna</option>
+<option value="16.52">São Luís de Montes Belos</option>
+<option value="14.88">São Luiz do Norte</option>
+<option value="13.28">São Miguel do Araguaia</option>
+<option value="17.07">São Miguel do Passa Quatro</option>
+<option value="15.35">São Patrício</option>
+<option value="18.99">São Simão</option>
+<option value="16.70">Senador Canedo</option>
+<option value="18.31">Serranópolis</option>
+<option value="16.66">Silvânia</option>
+<option value="14.47">Simolândia</option>
+<option value="14.80">Sítio d&#39;Abadia</option>
+<option value="16.05">Taquaral de Goiás</option>
+<option value="13.78">Teresina de Goiás</option>
+<option value="16.40">Terezópolis de Goiás</option>
+<option value="18.35">Três Ranchos</option>
+<option value="16.65">Trindade</option>
+<option value="13.50">Trombas</option>
+<option value="16.60">Turvânia</option>
+<option value="17.85">Turvelândia</option>
+<option value="14.25">Uirapuru</option>
+<option value="14.52">Uruaçu</option>
+<option value="15.50">Uruana</option>
+<option value="17.47">Urutaí</option>
+<option value="16.07">Valparaíso de Goiás</option>
+<option value="17.03">Varjão</option>
+<option value="16.74">Vianópolis</option>
+<option value="17.73">Vicentinópolis</option>
+<option value="15.04">Vila Boa</option>
+<option value="15.45">Vila Propício</option>
+</select>
+</div>
+
+<details>
+<summary>Ajustar tarifa, sol e painel</summary>
+<div class="field"><label for="tar">Tarifa da concessionária (R$ por kWh)</label>
+<input id="tar" type="number" inputmode="decimal" step="0.01" value="1.00"></div>
+<p class="hint">Confira na conta do cliente: some TE + TUSD com impostos. A tarifa muda todo ano.</p>
+<div class="row">
+<div class="field"><label for="hsp">Sol pleno (h por dia)</label><input id="hsp" type="number" inputmode="decimal" step="0.1" value="5.4"></div>
+<div class="field"><label for="pr">Eficiência (%)</label><input id="pr" type="number" inputmode="decimal" step="1" value="80"></div>
+</div>
+<div class="field"><label for="w">Potência do painel (W)</label><input id="w" type="number" inputmode="numeric" step="5" value="610"></div>
+</details>
+
+<div class="warn" id="warn"></div>
+
+<section id="out" aria-live="polite">
+<div class="hero"><b id="paineis">0</b><span>painéis de <span id="wl">610</span> W</span></div>
+<div class="grid">
+<div class="cell"><small>Usina</small><strong id="kwp">0 kWp</strong></div>
+<div class="cell"><small>Gera por mês</small><strong id="gen">0 kWh</strong></div>
+<div class="cell"><small>Consumo estimado</small><strong id="cons">0 kWh</strong></div>
+<div class="cell"><small>Área no telhado</small><strong id="area">0 m²</strong></div>
+<div class="cell wide save"><small>Economia estimada por mês</small><strong id="eco">R$ 0</strong></div>
+</div>
+</section>
+
+<section class="sunbox" aria-live="polite">
+<h2>Como o sol age em <span id="sunname">Goiânia</span></h2>
+<p class="sub" style="margin:0">Altura do sol no céu ao longo do dia, em três épocas do ano.</p>
+<svg id="sunsvg" viewBox="0 0 320 160" role="img" aria-label="Altura do sol ao longo do dia"></svg>
+<div class="leg" id="sunleg"></div>
+<div class="tilt" id="tilt"></div>
+<h3>Quanto a usina gera em cada mês</h3>
+<div class="bars" id="bars"></div>
+<div class="mo" id="mo"></div>
+<p class="hint" id="sunrange" style="margin:10px 0 0"></p>
+</section>
+
+<p class="note">Estimativa inicial para conversar com o cliente. O projeto final depende da visita técnica, do telhado e das sombras. A taxa mínima continua sendo cobrada.</p>
+</main>
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+var nf=function(n,d){return n.toLocaleString("pt-BR",{minimumFractionDigits:d||0,maximumFractionDigits:d||0})};
+function sun(kwp,hsp,pr){
+var sel=$("cid"),name=sel.options[sel.selectedIndex].text,lat=-parseFloat(sel.value),phi=lat*Math.PI/180;
+var ds=[{n:355,c:"var(--sun)",t:"Dezembro (verão)"},{n:79,c:"var(--ok)",t:"Março e setembro"},{n:172,c:"var(--mut)",t:"Junho (inverno)"}];
+function decl(n){return 23.44*Math.sin(2*Math.PI*(284+n)/365)*Math.PI/180}
+function alt(h,d){var H=(h-12)*Math.PI/12,s=Math.sin(phi)*Math.sin(d)+Math.cos(phi)*Math.cos(d)*Math.cos(H);return Math.asin(Math.max(-1,Math.min(1,s)))*180/Math.PI}
+function X(h){return 30+(h-6)/12*280}
+function Y(a){return 140-a/90*125}
+var svg="",leg="";
+[0,45,90].forEach(function(a){svg+='<line class="g" x1="30" x2="310" y1="'+Y(a)+'" y2="'+Y(a)+'"/><text x="24" y="'+(Y(a)+4)+'" text-anchor="end">'+a+'°</text>'});
+[6,9,12,15,18].forEach(function(h){svg+='<text x="'+X(h)+'" y="158" text-anchor="middle">'+h+'h</text>'});
+ds.forEach(function(o){
+var d=decl(o.n),p="";
+for(var h=6;h<=18.001;h+=0.25){var a=alt(h,d);if(a>=0)p+=(p?"L":"M")+X(h).toFixed(1)+" "+Y(a).toFixed(1)}
+svg+='<path d="'+p+'" fill="none" stroke="'+o.c+'" stroke-width="3" stroke-linecap="round"/>';
+var H0=Math.acos(Math.max(-1,Math.min(1,-Math.tan(phi)*Math.tan(d))));
+leg+='<div><i style="background:'+o.c+'"></i>'+o.t+'<span>meio-dia '+nf(alt(12,d))+'° · dia de '+nf(H0*24/Math.PI,1)+' h</span></div>';
+});
+$("sunsvg").innerHTML=svg;$("sunleg").innerHTML=leg;
+$("sunname").textContent=name;
+$("tilt").innerHTML="No hemisfério sul o sol passa ao <b>norte</b>. Painéis virados para o norte, com inclinação perto de <b>"+nf(Math.abs(lat))+"°</b> (a latitude da cidade), aproveitam melhor o ano todo.";
+var f=[.92,.96,.95,1,1.04,1.03,1.08,1.15,1.1,1,.88,.88],dm=[31,28,31,30,31,30,31,31,30,31,30,31],M="JFMAMJJASOND",mn=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+var mean=f.reduce(function(a,b){return a+b},0)/12,g=f.map(function(x,i){return kwp*hsp*pr*(x/mean)*dm[i]}),mx=Math.max.apply(null,g),b="",m="";
+g.forEach(function(v,i){b+='<i style="height:'+(mx>0?v/mx*100:0)+'%" title="'+mn[i]+': '+nf(v)+' kWh"></i>';m+='<span>'+M[i]+'</span>'});
+$("bars").innerHTML=b;$("mo").innerHTML=m;
+var iMin=g.indexOf(Math.min.apply(null,g)),iMax=g.indexOf(mx);
+$("sunrange").textContent="Gera mais em "+mn[iMax]+" ("+nf(g[iMax])+" kWh) e menos em "+mn[iMin]+" ("+nf(g[iMin])+" kWh). A variação entre meses usa um perfil típico do Centro-Oeste, com mais chuva de novembro a março. É uma estimativa, não uma medição.";
+}
+function calc(){
+var bill=parseFloat($("bill").value)||0, tar=parseFloat($("tar").value)||0,
+hsp=parseFloat($("hsp").value)||0, pr=(parseFloat($("pr").value)||0)/100,
+w=parseFloat($("w").value)||0, min=parseFloat($("lig").value)||0;
+var warn=$("warn");
+if(tar<=0||hsp<=0||pr<=0||w<=0){warn.style.display="block";warn.textContent="Preencha tarifa, sol, eficiência e potência com valores maiores que zero.";return}
+warn.style.display="none";
+var cons=bill/tar;
+var comp=Math.max(0,cons-min);
+var perKwp=hsp*30*pr;
+var kwp=comp/perKwp;
+var n=Math.ceil(kwp*1000/w);
+var realKwp=n*w/1000;
+var gen=realKwp*perKwp;
+var eco=Math.min(gen,comp)*tar;
+$("paineis").textContent=n;
+$("wl").textContent=nf(w);
+$("kwp").textContent=nf(realKwp,2)+" kWp";
+$("gen").textContent=nf(gen)+" kWh";
+$("cons").textContent=nf(cons)+" kWh";
+$("area").textContent=nf(n*1.14*2.4)+" m²";
+$("eco").textContent="R$ "+nf(eco);
+sun(realKwp,hsp,pr);
+$("b1").textContent=n+" painéis";$("b2").textContent=nf(realKwp,2)+" kWp";$("b3").textContent="R$ "+nf(eco)+"/mês";
+}
+["bill","lig","cid","tar","hsp","pr","w"].forEach(function(i){$(i).addEventListener("input",calc)});
+calc();
+var hero=document.querySelector(".hero"),bar=$("bar");
+if("IntersectionObserver" in window&&hero){new IntersectionObserver(function(e){bar.classList.toggle("on",!e[0].isIntersecting)},{threshold:0}).observe(hero)}
+})();
+</script>
+</body>
+</html>
